@@ -15,8 +15,17 @@ def main():
     parser.add_argument('--soc', default=os.environ.get('AGORA_SOC'), required=not bool(os.environ.get('AGORA_SOC')))
     parser.add_argument('--ubuntu', required=True)
     args = parser.parse_args()
-    workspace = Path(os.environ.get('AGORA_WORKSPACE', '~/agora-workspace')).expanduser()
-    workspace.mkdir(parents=True, exist_ok=True)
+    if not os.environ.get('AGORA_WORKSPACE'):
+        print('[FAILED] Workspace | Expected: set AGORA_WORKSPACE | Actual: missing')
+        print('STOP: Set the workspace in step 1, then rerun this check.')
+        return 1
+    workspace = Path(os.environ['AGORA_WORKSPACE']).expanduser()
+    try:
+        workspace.mkdir(parents=True, exist_ok=True)
+    except OSError as error:
+        print(f'[FAILED] Workspace | Expected: writable directory | Actual: {error}')
+        print('STOP: Fix the workspace path or permissions, then rerun this check.')
+        return 1
     results = []
     def check(name, expected, actual, ok, pending=False):
         status = 'CHECKED' if ok else 'NEEDS_SETUP' if pending else 'FAILED'
@@ -43,7 +52,14 @@ def main():
         exists = (Path('/usr/local/lib') / lib).is_file()
         check(lib, 'installed by aid-pkg', 'found' if exists else 'missing', exists, True)
     print(f'\nChecks complete: {results.count("FAILED")} failed, {results.count("NEEDS_SETUP")} need setup.')
-    return 1 if 'FAILED' in results else 2 if 'NEEDS_SETUP' in results else 0
+    if 'FAILED' in results:
+        print('STOP: Do not continue. For SoC/system mismatches, return to hardware selection; fix workspace/disk issues on the device. Rerun this check.')
+        return 1
+    if 'NEEDS_SETUP' in results:
+        print('NEXT: Install the missing dependencies in step 3, then rerun this check before downloading or running the model.')
+        return 2
+    print('READY: Environment checks passed. Continue to the next step.')
+    return 0
 
 if __name__ == '__main__':
     raise SystemExit(main())
