@@ -1,0 +1,6 @@
+.venv/
+build/
+resources/
+__pycache__/
+*.log
+.DS_Store
