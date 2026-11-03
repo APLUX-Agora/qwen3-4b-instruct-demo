@@ -56,8 +56,9 @@ int main(int argc, char** argv) {
             if (event.state == GenState::ERROR || event.state == GenState::ABORT) failed = true;
             if (event.state == GenState::END) ended = true;
             if (event.state == GenState::BEGIN || event.state == GenState::CONTINUE || event.state == GenState::END) {
-                response += event.text;
-                std::cout << event.text << std::flush;
+                const std::string text = (event.text == "<|im_end|>" || event.text == "<|endoftext|>") ? "" : event.text;
+                response += text;
+                std::cout << text << std::flush;
             }
         }), "Generation");
         std::cout << '\n';

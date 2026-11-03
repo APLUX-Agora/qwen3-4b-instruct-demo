@@ -70,6 +70,10 @@ cd "$AGORA_WORKSPACE/code"
 
 Expected: A streamed answer followed by `COMPLETED`. The compiled context is 4096. This is a single-turn C++ example using the public AidGen API.
 
+## Validation
+
+QCS8550 / Ubuntu 22.04: tested with AidGen 2.4.4.171 and the QNN 2.48 backend, using the supplied 4096-context model. Other hardware combinations require validation.
+
 ## License
 
 Example code: Apache-2.0. Model licenses are documented in the HF repository. AidGen and QNN SDKs are installed separately; no SDK source or binaries are included.
